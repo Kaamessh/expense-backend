@@ -31,7 +31,8 @@ const PORT = process.env.PORT || 4000;
 (async () => {
   const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/expenses';
   try {
-    await mongoose.connect(uri, { autoIndex: true });
+    // Ensure we use a consistent database regardless of URI default
+    await mongoose.connect(uri, { autoIndex: true, dbName: process.env.MONGO_DB_NAME || 'expenses' });
     console.log('MongoDB connected');
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
