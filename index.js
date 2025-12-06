@@ -29,7 +29,12 @@ app.use(cors({
   origin: (origin, callback) => {
     // Allow non-browser requests (no origin)
     if (!origin) return callback(null, true);
+    // Allow explicitly listed origins
     if (allowedOrigins.includes(origin)) return callback(null, true);
+    // Permit Vercel preview/prod domains for this project
+    const isVercel = /\.vercel\.app$/i.test(origin);
+    const isProjectDomain = /expense-frontend/i.test(origin);
+    if (isVercel && isProjectDomain) return callback(null, true);
     return callback(new Error(`CORS blocked for origin: ${origin}`));
   },
   credentials: true,
