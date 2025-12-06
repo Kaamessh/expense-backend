@@ -17,7 +17,18 @@ const app = express();
 
 app.use(express.json());
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }));
+// Configure CORS to allow multiple origins via comma-separated env
+const rawOrigins = process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:3000';
+const allowedOrigins = rawOrigins.split(',').map(o => o.trim()).filter(Boolean);
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow non-browser requests (no origin)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true
+}));
 app.use(rateLimit({ windowMs: 60 * 1000, max: 120 }));
 app.use(morgan('dev'));
 app.use(passport.initialize());
