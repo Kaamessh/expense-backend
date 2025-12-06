@@ -61,7 +61,9 @@ router.get('/google/callback',
       }
       console.log('Google callback: authenticated user', { id: user._id?.toString?.(), email: user.email });
       const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
-      const redirectUrl = `${process.env.FRONTEND_URL}/auth/success?token=${encodeURIComponent(token)}`;
+      // Use hash-based route for SPA frontends using HashRouter
+      const frontend = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
+      const redirectUrl = `${frontend}/#/auth/success?token=${encodeURIComponent(token)}`;
       return res.redirect(redirectUrl);
     } catch (err) {
       console.error('Google callback error:', err);
