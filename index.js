@@ -18,7 +18,12 @@ const app = express();
 app.use(express.json());
 app.use(helmet());
 // Configure CORS to allow multiple origins via comma-separated env
-const rawOrigins = process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:3000';
+const defaultOrigins = [
+  'http://localhost:3000',
+  'https://expense-frontend-kaameshs-projects.vercel.app',
+  'https://expense-frontend-gamma-sandy.vercel.app'
+];
+const rawOrigins = process.env.CORS_ORIGIN || process.env.FRONTEND_URL || defaultOrigins.join(',');
 const allowedOrigins = rawOrigins.split(',').map(o => o.trim()).filter(Boolean);
 app.use(cors({
   origin: (origin, callback) => {
@@ -27,7 +32,18 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error(`CORS blocked for origin: ${origin}`));
   },
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 204
+}));
+// Handle CORS preflight for all routes
+app.options('*', cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true,
+  optionsSuccessStatus: 204
 }));
 app.use(rateLimit({ windowMs: 60 * 1000, max: 120 }));
 app.use(morgan('dev'));
