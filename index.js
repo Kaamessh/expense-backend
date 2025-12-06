@@ -1,3 +1,5 @@
+// Load environment variables from .env if present
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -33,7 +35,8 @@ const PORT = process.env.PORT || 4000;
   try {
     // Ensure we use a consistent database regardless of URI default
     await mongoose.connect(uri, { autoIndex: true, dbName: process.env.MONGO_DB_NAME || 'expenses' });
-    console.log('MongoDB connected');
+    const maskedUri = uri.replace(/:\w+@/, ':***@');
+    console.log(`MongoDB connected (dbName=${process.env.MONGO_DB_NAME || 'expenses'}, uri=${maskedUri})`);
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
   }
