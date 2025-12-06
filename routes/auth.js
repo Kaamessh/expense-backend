@@ -55,10 +55,16 @@ router.get('/google/callback',
   async (req, res) => {
     try {
       const user = req.user;
+      if (!user) {
+        console.error('Google callback: no user returned from passport');
+        return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/error`);
+      }
+      console.log('Google callback: authenticated user', { id: user._id?.toString?.(), email: user.email });
       const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
       const redirectUrl = `${process.env.FRONTEND_URL}/auth/success?token=${encodeURIComponent(token)}`;
       return res.redirect(redirectUrl);
     } catch (err) {
+      console.error('Google callback error:', err);
       return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/error`);
     }
   }
