@@ -18,7 +18,7 @@ router.get('/', auth, async (req, res) => {
 
 router.post('/', auth, async (req, res) => {
   try {
-    const { date, category, description, amount } = req.body;
+    const { date, category, description, amount, currencyCode, currencySymbol } = req.body;
     if (!date || !category || amount == null) {
       return res.status(400).json({ error: 'Missing fields', details: { date, category, amount } });
     }
@@ -57,6 +57,8 @@ router.post('/', auth, async (req, res) => {
       category,
       description,
       amount: numAmount,
+      currencyCode: currencyCode || 'INR',
+      currencySymbol: currencySymbol || '₹',
     });
     res.status(201).json(exp);
   } catch (err) {
